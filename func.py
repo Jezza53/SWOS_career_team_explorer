@@ -51,3 +51,9 @@ def clear_4_XML(input_value):
     except:
         pass    # Literally DO NOTHING bro :-)
     return tmpdata
+
+def convert815skills(skill, convert):
+    if skill > 7 and convert:
+        return skill - 8
+    else:
+        return skill
