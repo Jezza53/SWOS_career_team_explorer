@@ -14,10 +14,13 @@ def hexpure(hexextract):
     tmpdata = tmpdata.replace("'", '')
     return tmpdata
 
-def hexpurgezeros(hexdata):
-    # Purge zeros out of purified hex data
-    # NOTE: This will delete double zeros no matter where they are
-    tmpdata = hexdata.replace("00", "")
+def hexcutzeros(hexdata):
+    # Cut off entire string post initial 00 position
+    # NOTE: This will avoid misspelled names in squad
+    tmpdata = hexdata[:hexdata.index('00')] 
+    #to avoid error if last letter is "P" (i.e. "50" in hex) and hexcutzeros has truncated the last "0"
+    if len(tmpdata) % 2 != 0:
+        tmpdata += '0'  
     return tmpdata
 
 def hexcutzeros(hexdata):
