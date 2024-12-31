@@ -143,7 +143,7 @@ def updateview(carfile_output):
     
     teamnamebox_1 = Label(teamcanvas,bg=colortone,width=15,height=1,bd=0,highlightthickness=0, font=('swos',14),anchor='w',text='TEAM NAME:',fg='yellow')
     teamnamebox_1.grid(row=0,column=0,columnspan=2)
-    teamnamebox_2 = Label(teamcanvas,bg=colortone,width=20,height=1,bd=0,highlightthickness=0, font=('swos',10),anchor='e',text=carfileteaminfo.clubname,fg='white')
+    teamnamebox_2 = Label(teamcanvas,bg=colortone,width=20,height=1,bd=0,highlightthickness=0, font=('swos',14),anchor='e',text=carfileteaminfo.clubname,fg='white')
     teamnamebox_2.grid(row=1,column=1,columnspan=2,pady=5)
     
     box_br1 = Label(teamcanvas,bg=colortone,width=10,height=1,bd=0,highlightthickness=0, font=('swos',12),text=' ',fg='white')
@@ -151,7 +151,7 @@ def updateview(carfile_output):
 
     teamnamebox_3 = Label(teamcanvas,bg=colortone,width=15,height=1,bd=0,highlightthickness=0, font=('swos',14),anchor='w',text='MANAGER NAME:',fg='yellow')
     teamnamebox_3.grid(row=3,column=0,columnspan=2)
-    teamnamebox_4 = Label(teamcanvas,bg=colortone,width=20,height=1,bd=0,highlightthickness=0, font=('swos',10),anchor='e',text=carfileteaminfo.managername,fg='white')
+    teamnamebox_4 = Label(teamcanvas,bg=colortone,width=20,height=1,bd=0,highlightthickness=0, font=('swos',14),anchor='e',text=carfileteaminfo.managername,fg='white')
     teamnamebox_4.grid(row=4,column=1,columnspan=2,pady=5)
     
     box_br2 = Label(teamcanvas,bg=colortone,width=10,height=1,bd=0,highlightthickness=0, font=('swos',12),text=' ',fg='white')
@@ -159,7 +159,7 @@ def updateview(carfile_output):
 
     teamnamebox_5 = Label(teamcanvas,bg=colortone,width=15,height=1,bd=0,highlightthickness=0, font=('swos',14),anchor='w',text='BANK BALANCE:',fg='yellow')
     teamnamebox_5.grid(row=6,column=0,columnspan=2)
-    teamnamebox_6 = Label(teamcanvas,bg=colortone,width=20,height=1,bd=0,highlightthickness=0, font=('swos',10),anchor='e',text="{:0,.2f}".format(float(carfileteaminfo.money)),fg='white')
+    teamnamebox_6 = Label(teamcanvas,bg=colortone,width=20,height=1,bd=0,highlightthickness=0, font=('swos',14),anchor='e',text="{:0,.2f}".format(float(carfileteaminfo.money)),fg='white')
     teamnamebox_6.grid(row=7,column=1,columnspan=2,pady=5)
 
 def close():
