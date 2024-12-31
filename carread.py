@@ -46,7 +46,7 @@ def readcarfile(inputfile):
     sq_ofst = 0xDBCC             # Starting address to read current CAR file squad
     size_ofst = 0xE08C           # Info on how many players are actually in squad. Max is 30 = 0x1E
     sqcall_ofst = 0xDB60         # Start calling squad members from tm_ofst. Max is 30 calls to size_ofst limit
-    ba_ofst = 0xD5DC             # New bank ballance (current amount of money)
+    ba_ofst = 0xD5DC             # New bank balance (current amount of money)
 
     # Amiga HEX addresses stored below for future development (Amiga format differs by 2 bytes negative)
     #tm_ofst = 0xDB83       # Club's name (up to 16 hex blocks)
