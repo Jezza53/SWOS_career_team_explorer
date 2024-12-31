@@ -4,6 +4,7 @@ import os
 from tkinter import *
 from PIL import ImageTk,Image
 from tkinter import filedialog
+from tkinter import simpledialog
 from carread import *
 from dict import *
 from get_data import *
@@ -24,6 +25,7 @@ color_re = '#ae131a'
 fcolor_headers = '#979A9A'
 pythonpath = os.path.dirname(__file__)+'/'
 configfile = pythonpath + 'CARexplorer.conf'
+pickedfile = ''
 
 class openfiledialog():
     def __init__(self, initialdir, title, filetype):
@@ -36,6 +38,7 @@ class openfiledialog():
         return x
 
 def opencar():
+    global pickedfile
     clear_frame(mf_leftframe)    
     choosecarfile = openfiledialog(default_opendir,'Select SWOS career file',[('SWOS Career file', '*.CAR')])
     pickedfile = choosecarfile.show()
@@ -157,10 +160,13 @@ def updateview(carfile_output):
     box_br2 = Label(teamcanvas,bg=colortone,width=10,height=1,bd=0,highlightthickness=0, font=('swos',12),text=' ',fg='white')
     box_br2.grid(row=5,column=0,columnspan=2)
 
-    teamnamebox_5 = Label(teamcanvas,bg=colortone,width=15,height=1,bd=0,highlightthickness=0, font=('swos',14),anchor='w',text='BANK BALANCE:',fg='yellow')
-    teamnamebox_5.grid(row=6,column=0,columnspan=2)
-    teamnamebox_6 = Label(teamcanvas,bg=colortone,width=20,height=1,bd=0,highlightthickness=0, font=('swos',12),anchor='e',text="{:0,.2f}".format(float(carfileteaminfo.money)),fg='white')
-    teamnamebox_6.grid(row=7,column=1,columnspan=2,pady=5)
+    moneycanvas = Canvas(mf_rightframe,width=280,borderwidth=0, highlightthickness=0,bg=colortone)
+    moneycanvas.place(x=10,y=130)
+
+    teamnamebox_5 = Label(moneycanvas,bg=colortone,width=15,height=1,bd=0,highlightthickness=0, font=('swos',14),anchor='w',text='BANK BALANCE:',fg='yellow')
+    teamnamebox_5.grid(row=0,column=0,columnspan=2)
+    teamnamebox_6 = Label(moneycanvas,bg=colortone,width=20,height=1,bd=0,highlightthickness=0, font=('swos',12),anchor='e',text="{:0,.2f}".format(float(carfileteaminfo.money)),fg='white')
+    teamnamebox_6.grid(row=1,column=1,columnspan=2,pady=5)
 
 def close():
     quit()
@@ -175,8 +181,80 @@ def upd_data_teams():
 def upd_data_players():     # This feature is planned for future releases
     pass
 
-def change_bbalance():      # This feature is planned for future releases
-    pass
+def read_hex_file(file_path):
+    # Open the file in binary read mode
+    with open(file_path, 'rb') as file:
+        hex_data = file.read()
+    return hex_data
+
+def update_hex_data(hex_data, offset, new_hex_value):
+    # Convert the hex data to a mutable bytearray
+    hex_data_array = bytearray(hex_data)
+    
+    # Update the hex value at the specified offset
+    # Assuming new_hex_value is a byte or bytes object
+    hex_data_array[offset:offset+len(new_hex_value)] = new_hex_value
+    
+    return bytes(hex_data_array)
+
+def write_hex_file(file_path, hex_data):
+    # Open the file in binary write mode
+    with open(file_path, 'wb') as file:
+        file.write(hex_data)
+
+def reverse_hex_pairs(hex_str):
+    # Reverse the hexadecimal string by pairs of 2 characters
+    return ''.join([hex_str[i:i+2] for i in range(0, len(hex_str), 2)][::-1])
+
+def change_balance():      # This feature is planned for future releases
+    global pickedfile
+    if pickedfile != '':
+        user_input = simpledialog.askstring("Input", "Enter a new Bank Balance Amount:")
+        
+        try:
+            number = int(user_input)
+        except ValueError:
+            tk.messagebox.showinfo("Invalid", "Please enter a valid number.")
+            return
+        
+        number = max(0, min(100000000, number))
+
+        # Convert the number to hexadecimal and remove the '0x' prefix
+        hex_value_no_prefix = hex(number)[2:]
+        
+        # Ensure the hexadecimal string is 8-length
+        hex_value_no_prefix = hex_value_no_prefix.zfill(8)
+
+        # Reverse the hexadecimal string by pairs of 2 characters
+        reversed_hex_value = reverse_hex_pairs(hex_value_no_prefix)
+        
+        # Convert the hexadecimal string to bytes
+        new_hex_value = bytes.fromhex(reversed_hex_value)
+
+        ba_ofst = 0xD5DC    # New bank balance (current amount of money)
+        # Read the original hex file
+        original_hex_data = read_hex_file(pickedfile)
+    
+        # Update the hex data
+        updated_hex_data = update_hex_data(original_hex_data, ba_ofst, new_hex_value)
+    
+        # Write the updated hex data back to the file
+        write_hex_file(pickedfile, updated_hex_data)
+
+        moneycanvas = Canvas(mf_rightframe,width=280,borderwidth=0, highlightthickness=0,bg=colortone)
+        moneycanvas.place(x=10,y=130)
+
+        teamnamebox_5 = Label(moneycanvas,bg=colortone,width=15,height=1,bd=0,highlightthickness=0, font=('swos',14),anchor='w',text='BANK BALANCE:',fg='yellow')
+        teamnamebox_5.grid(row=0,column=0,columnspan=2)
+        teamnamebox_6 = Label(moneycanvas,bg=colortone,width=20,height=1,bd=0,highlightthickness=0, font=('swos',12),anchor='e',text="{:0,.2f}".format(float(number)),fg='white')
+        teamnamebox_6.grid(row=1,column=1,columnspan=2,pady=5)
+
+        tk.messagebox.showinfo("Done", "Balance updated in CAR file")
+
+    else:
+        tk.messagebox.showinfo("No CAR", "Please load a .CAR file first.")
+
+
 
 def edit_player():          # This feature is planned for future releases
     pass
@@ -272,14 +350,17 @@ bg_label.place(x=0,y=0)
 #- - - - - - - - - - - - - - - - -
 mf_rightframe = Frame(root, height=850, width=300, bg=colortone, highlightthickness=0,bd=0) # Label with menu
 mf_rightframe.grid(row=1,column=1)
-Button(mf_rightframe, image=b4, borderwidth=0, highlightthickness=0, command=work_in_progress).place(y=400,x=30)
+Button(mf_rightframe, image=b4, borderwidth=0, highlightthickness=0, command=change_balance).place(y=400,x=30)
 Button(mf_rightframe, image=b7, borderwidth=0, highlightthickness=0, command=work_in_progress).place(y=450,x=30)
 Button(mf_rightframe, image=b3, borderwidth=0, highlightthickness=0, command=upd_data_teams).place(y=500,x=30)
 Button(mf_rightframe, image=b5, borderwidth=0, highlightthickness=0, command=work_in_progress).place(y=550,x=30)
 Button(mf_rightframe, image=b6, borderwidth=0, highlightthickness=0, command=work_in_progress).place(y=600,x=30)
-Button(mf_rightframe, image=b1, borderwidth=0, highlightthickness=0, command=close).place(y=800,x=30)
-Button(mf_rightframe, image=b2, borderwidth=0, highlightthickness=0, command=opencar).place(y=750,x=30)
-Button(mf_rightframe, image=info, borderwidth=0, highlightthickness=0, command=infobox).place(y=700,x=160)
-Button(mf_rightframe, image=git, borderwidth=0, highlightthickness=0, command=launchgitsite).place(y=700,x=30)
+Button(mf_rightframe, image=b1, borderwidth=0, highlightthickness=0, command=close).place(y=750,x=30)
+Button(mf_rightframe, image=b2, borderwidth=0, highlightthickness=0, command=opencar).place(y=700,x=30)
+Button(mf_rightframe, image=info, borderwidth=0, highlightthickness=0, command=infobox).place(y=650,x=160)
+Button(mf_rightframe, image=git, borderwidth=0, highlightthickness=0, command=launchgitsite).place(y=650,x=30)
+
+
+
 
 root.mainloop()

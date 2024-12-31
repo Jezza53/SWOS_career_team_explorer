@@ -63,7 +63,7 @@ def readcarfile(inputfile):
 
         # Team information reader begins here
         # -----------------------------------------------------------------------------------------------------
-        # Calculate bank ballance from HEX
+        # Calculate bank balance from HEX
         nbb_read = (
             hex2int(hexpure(hexread(open_infile, ba_ofst, 1))),
             hex2int(hexpure(hexread(open_infile, ba_ofst+1, 1))),
