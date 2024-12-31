@@ -95,13 +95,13 @@ def updateview(carfile_output):
         pos_label = Label(squadcanvas,bg=colortone,width=3,height=1,bd=0,highlightthickness=0, font=('swos',16),text=squad[counter][3],fg='white')
         nat_label = Label(squadcanvas,bg=colortone,width=3,height=1,bd=0,highlightthickness=0, font=('swos',16),text=squad[counter][4],fg='white',padx=10)
         # Player's skills columns
-        p_label = Label(squadcanvas,bg=colortone,width=2,height=1,bd=0,highlightthickness=0, font=('swos',16),text=hex2int(squad[counter][5]),fg=d_skillcolor[hex2int(squad[counter][5])])
-        v_label = Label(squadcanvas,bg=colortone,width=2,height=1,bd=0,highlightthickness=0, font=('swos',16),text=hex2int(squad[counter][6]),fg=d_skillcolor[hex2int(squad[counter][6])])
-        h_label = Label(squadcanvas,bg=colortone,width=2,height=1,bd=0,highlightthickness=0, font=('swos',16),text=hex2int(squad[counter][7]),fg=d_skillcolor[hex2int(squad[counter][7])])
-        t_label = Label(squadcanvas,bg=colortone,width=2,height=1,bd=0,highlightthickness=0, font=('swos',16),text=hex2int(squad[counter][8]),fg=d_skillcolor[hex2int(squad[counter][8])])
-        c_label = Label(squadcanvas,bg=colortone,width=2,height=1,bd=0,highlightthickness=0, font=('swos',16),text=hex2int(squad[counter][9]),fg=d_skillcolor[hex2int(squad[counter][9])])
-        s_label = Label(squadcanvas,bg=colortone,width=2,height=1,bd=0,highlightthickness=0, font=('swos',16),text=hex2int(squad[counter][10]),fg=d_skillcolor[hex2int(squad[counter][10])])
-        f_label = Label(squadcanvas,bg=colortone,width=2,height=1,bd=0,highlightthickness=0, font=('swos',16),text=hex2int(squad[counter][11]),fg=d_skillcolor[hex2int(squad[counter][11])])
+        p_label = Label(squadcanvas,bg=colortone,width=2,height=1,bd=0,highlightthickness=0, font=('swos',16),text=convert815skills(hex2int(squad[counter][5]),convert_skills),fg=d_skillcolor[hex2int(squad[counter][5])])
+        v_label = Label(squadcanvas,bg=colortone,width=2,height=1,bd=0,highlightthickness=0, font=('swos',16),text=convert815skills(hex2int(squad[counter][6]),convert_skills),fg=d_skillcolor[hex2int(squad[counter][6])])
+        h_label = Label(squadcanvas,bg=colortone,width=2,height=1,bd=0,highlightthickness=0, font=('swos',16),text=convert815skills(hex2int(squad[counter][7]),convert_skills),fg=d_skillcolor[hex2int(squad[counter][7])])
+        t_label = Label(squadcanvas,bg=colortone,width=2,height=1,bd=0,highlightthickness=0, font=('swos',16),text=convert815skills(hex2int(squad[counter][8]),convert_skills),fg=d_skillcolor[hex2int(squad[counter][8])])
+        c_label = Label(squadcanvas,bg=colortone,width=2,height=1,bd=0,highlightthickness=0, font=('swos',16),text=convert815skills(hex2int(squad[counter][9]),convert_skills),fg=d_skillcolor[hex2int(squad[counter][9])])
+        s_label = Label(squadcanvas,bg=colortone,width=2,height=1,bd=0,highlightthickness=0, font=('swos',16),text=convert815skills(hex2int(squad[counter][10]),convert_skills),fg=d_skillcolor[hex2int(squad[counter][10])])
+        f_label = Label(squadcanvas,bg=colortone,width=2,height=1,bd=0,highlightthickness=0, font=('swos',16),text=convert815skills(hex2int(squad[counter][11]),convert_skills),fg=d_skillcolor[hex2int(squad[counter][11])])
         # Condition for goalkeeper (match case instruction released in Python 3.10)
         if counter<12:
             match squad[counter][3]:
@@ -227,6 +227,8 @@ for cfgentry in cfglines:
                 swos_data_directory = cfgentry[cfgentry.index('=')+1:cfgentry.index('\n')]
             case 'xmldir':
                 data_directory = cfgentry[cfgentry.index('=')+1:]
+            case 'convert815skills':
+                convert_skills = cfgentry[cfgentry.index('=')+1:cfgentry.index('\n')] == 'true'
 cfg.close()
 
 # Setup and show MAIN WINDOW
