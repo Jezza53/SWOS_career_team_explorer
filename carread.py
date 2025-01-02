@@ -30,6 +30,44 @@ class player():
         self.skills = None
         self.val = None
 
+class PlayerHex:
+    def __init__(self, address: str, stringvalue: str) -> None:
+        self.address = address
+        self.stringvalue = stringvalue
+    
+    def reset(self) -> None:
+        self.address = None
+        self.stringvalue = None
+    
+    def split(self) -> list[str]:
+        """
+        Splits the hex string value into data chunks of specified lengths.
+
+        Returns:
+        list[str]: A list of hex string chunks.
+        """
+        s = self.stringvalue
+        result = []
+        start = 0
+
+        # Iterate over each specified length
+        for length in [1, 1, 1, 22, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1]:
+            # Slice the string according to the specified byte lengths
+            chunk = s[start:start + length * 2]
+            result.append(chunk)
+            # Update the start position for the next chunk
+            start += length * 2
+
+            # If the start position exceeds the string length, break out of the loop
+            if start >= len(s):
+                break
+
+        # Add any remaining part of the string if the lengths don't cover the whole string
+        if start < len(s):
+            result.append(s[start:])
+
+        return result
+
 # Force path to CAR file to be given by the user
 #parser = argparse.ArgumentParser(description='SWOS career team explorer')
 #parser.add_argument('carrer_save_file', metavar='car_file', help='Path to SWOS *.CAR file')
@@ -55,6 +93,7 @@ def readcarfile(inputfile):
 
     footballer = 0  # Number of squad players read from file    
     squad = [('head','number','name','pos','nat','P', 'V', 'H', 'T', 'C', 'S' ,'F', 'value')] # Declare a list for future data feed
+    squadhex = []
     if inputfile != '':
         open_infile = open(inputfile, 'r+b').read()                         # Open file in read/binary mode only 
         #inputfile = open(args.carrer_save_file, 'r+b').read()              # Open file in read/binary mode only
@@ -140,6 +179,14 @@ def readcarfile(inputfile):
                         str(gostek.val)
                     )            
                     squad.append(temptuple)
+
+                    hex_data = hexpure(hexread(open_infile, call, 38))
+
+                    squadhex.append(PlayerHex(call, hex_data))
+
+                    # Print the call and hex data
+                    print(f"{call}:")
+                    print(hex_data)
                 else:
                     pass
                 step += 1
@@ -155,6 +202,63 @@ def readcarfile(inputfile):
         #    list_entry_mod = list_entry_mod.replace(',',';').replace('(','').replace(')','').replace("'",'')
         #    outputfile.write(list_entry_mod + '\n')
         #outputfile.close()
+
+        counter = 0
+        print('address,HEX,,,,,,,,,,,,,,,VALUES,U1,U2,U3,U4,U5')
+
+        while counter < len(squadhex):
+            splitstringvalue = squadhex[counter].split()
+
+            try:
+                nation = d_AGEdit_nation[hex2int(hexpurgezeros(splitstringvalue[0]))]
+            except KeyError:
+                nation = "Unknown"
+
+            unknown1 = splitstringvalue[1]
+            number = hex2int(hexpurgezeros(splitstringvalue[2]))
+            name = hex2ascii(hexcutzeros(splitstringvalue[3]))
+            unknown2 = splitstringvalue[4]
+
+            facepos_val_log = hex2int(splitstringvalue[5])
+            facepos_val_mod_log = fixposition(facepos_val_log)
+            position = d_posfaceval[facepos_val_mod_log[1]][0]
+            face = d_posfaceval[facepos_val_mod_log[1]][1]
+
+            cardsinjuries = splitstringvalue[6]
+            P = hex2int(splitstringvalue[7][1])
+            V = hex2int(splitstringvalue[7][2])
+            H = hex2int(splitstringvalue[7][3])
+            T = hex2int(splitstringvalue[7][4])
+            C = hex2int(splitstringvalue[7][5])
+            S = hex2int(splitstringvalue[7][6])
+            F = hex2int(splitstringvalue[7][7])
+            skills = sum(map(int, [convert815skills(P, True), convert815skills(V, True), convert815skills(H, True), convert815skills(T, True), convert815skills(C, True), convert815skills(S, True), convert815skills(F, True)]))
+
+            valueindex = hex2int(splitstringvalue[8])
+
+            try:
+                stars = d_stars_values[splitstringvalue[8]]
+            except KeyError:
+                stars = "Unknown"
+
+            try:
+                value = d_values[splitstringvalue[8]]
+            except KeyError:
+                value = "Unknown"
+
+            lggoals = hex2int(splitstringvalue[9])
+            cupgoals = hex2int(splitstringvalue[11])
+            unknown3 = splitstringvalue[10]
+            unknown4 = splitstringvalue[12]
+            unknown5 = splitstringvalue[13]
+
+            print(f"{squadhex[counter].address},HEX,{','.join(splitstringvalue)},VALUES,"
+                f"{unknown1},{unknown2},{unknown3},{unknown4},{unknown5},{nation},{number},{name},{cardsinjuries},{position},{face},"
+                f"{P},{V},{H},{T},{C},{S},{F},{skills},{valueindex},{stars},"
+                f"{value},{lggoals},{cupgoals}")
+
+            counter += 1
+
 
         return squad, teaminfo
         # Closing statement
