@@ -1,3 +1,5 @@
+import re
+
 def hexread(file, starting_offset, hex):
     # Read HEX values from SWOS CAR file
     tmpdata = file[starting_offset:starting_offset+hex]
@@ -85,3 +87,25 @@ def write_hex_file(file_path, hex_data):
     # Open the file in binary write mode
     with open(file_path, 'wb') as file:
         file.write(hex_data)
+
+def sanitize_string(input_string):
+    # Use a regular expression to remove all non-letter and non-space characters
+    sanitized_string = re.sub(r'[^a-zA-Z\s]', '', input_string)
+    # Strip leading and trailing spaces
+    sanitized_string = sanitized_string.strip()
+    return sanitized_string
+
+def fix_22_length(s):
+    # Trim the string to 22 characters or pad with '0' to make it 22 characters long
+    if len(s) > 22:
+        return s[:22]
+    else:
+        return s.ljust(22, '0')
+
+def string_to_hex(s):
+    # Convert each character in the string to its hex value and join them
+    return ''.join(format(ord(c), '02x') for c in s)
+
+def replace_substring(original, new_substring, position):
+    # Replace substring at the specified position
+    return original[:position] + new_substring + original[position+len(new_substring):]

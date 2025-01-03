@@ -2,6 +2,7 @@
 from fixes import *
 from dict import *
 from func import *
+from carwrite import *
 import binascii, argparse, subprocess
 
 # Define classes for teams and players
@@ -130,7 +131,32 @@ class PlayerFull:
                 f"{self.unknown1},{self.unknown2},{self.unknown3},{self.unknown4},{self.unknown5},{self.nation},{self.number},{self.cardsinjuries},{self.face},"
                 f"{self.P},{self.V},{self.H},{self.T},{self.C},{self.S},{self.F},{self.skills},{self.valueindex},{self.stars},"
                 f"{self.value},{self.lggoals},{self.cupgoals},{self.position},{self.name}")
-    
+
+    def UpdateName(self, newname):
+        newname = sanitize_string(newname)
+        newname = fix_22_length(newname)
+        newnamehex = string_to_hex(newname)
+        self.phex.stringvalue = replace_substring(self.phex.stringvalue, newnamehex, 7)
+
+    def UpdateSkills(self, P, V, H, T, C, S, F):
+        newskills = '0' + str(P) + str(V) + str(H) + str(T) + str(C) + str(S) + str(F)
+        value = sum(map(int, [P, V, H, T, C, S, F]))
+        valuehex = hex(value)[2:]
+        self.phex.stringvalue = replace_substring(self.phex.stringvalue, newskills + valuehex, 57)
+
+    def UpdateCardsInjuries(self):
+        self.phex.stringvalue = replace_substring(self.phex.stringvalue, '00', 51)
+
+    def writeToCAR(self, carfile):
+        updateCARfile(carfile, self.phex.address, self.phex.stringvalue)
+
+    def UpdateInCAR(self, carfile):
+        self.UpdateName(self.name)
+        self.UpdateSkills(self.P, self.V, self.H, self.T, self.C, self.S, self.F)
+        if self.status == "00":
+            self.UpdateCardsInjuries()
+        self.writeToCAR(self, carfile)
+   
 # Force path to CAR file to be given by the user
 #parser = argparse.ArgumentParser(description='SWOS career team explorer')
 #parser.add_argument('carrer_save_file', metavar='car_file', help='Path to SWOS *.CAR file')
