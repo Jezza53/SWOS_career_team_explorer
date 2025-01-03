@@ -102,7 +102,7 @@ def readcarfile(inputfile):
 
         # Team information reader begins here
         # -----------------------------------------------------------------------------------------------------
-        # Calculate bank ballance from HEX
+        # Calculate bank balance from HEX
         nbb_read = (
             hex2int(hexpure(hexread(open_infile, ba_ofst, 1))),
             hex2int(hexpure(hexread(open_infile, ba_ofst+1, 1))),
@@ -200,7 +200,7 @@ def readcarfile(inputfile):
         #outputfile.close()
 
         counter = 0
-        print('address,HEX,,,,,,,,,,,,,,,VALUES,U1,U2,U3,U4,U5')
+        print('address,HEX:,,,,,,,,,,,,,,,VALUES:,U1,U2,U3,U4,U5,Nation,Number,Name,CardsInjuries,Position,Face,P,V,H,T,C,S,F,ValueIndex,Stars,Value,League Goals, Cup Goals')
 
         while counter < len(squadhex):
             splitstringvalue = squadhex[counter].split()
