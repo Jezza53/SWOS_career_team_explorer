@@ -148,7 +148,7 @@ def updateview(carfile_output):
         s_label.grid(row=counter,column=10,sticky='n',pady=3)
         f_label.grid(row=counter,column=11,sticky='n',pady=3)
         star_label.grid(row=counter,column=12,sticky='n',pady=3)
-        counter += 1 
+        counter += 1
     
     # Show team info on the right side
     teamcanvas = Canvas(mf_rightframe,width=280,borderwidth=0, highlightthickness=0,bg=colortone)
