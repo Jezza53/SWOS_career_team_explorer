@@ -180,13 +180,9 @@ def readcarfile(inputfile):
                     )            
                     squad.append(temptuple)
 
-                    hex_data = hexpure(hexread(open_infile, call, 38))
+                    #for logging later
+                    squadhex.append(PlayerHex(call, hexpure(hexread(open_infile, call, 38))))
 
-                    squadhex.append(PlayerHex(call, hex_data))
-
-                    # Print the call and hex data
-                    print(f"{call}:")
-                    print(hex_data)
                 else:
                     pass
                 step += 1
