@@ -60,3 +60,17 @@ def convert815skills(skill, convert):
         return skill - 8
     else:
         return skill
+
+def update_hex_data(hex_data, offset, new_hex_value):
+    # Convert the hex data to a mutable bytearray
+    hex_data_array = bytearray(hex_data)
+    
+    # Update the hex value at the specified offset
+    # Assuming new_hex_value is a byte or bytes object
+    hex_data_array[offset:offset+len(new_hex_value)] = new_hex_value
+    
+    return bytes(hex_data_array)
+
+def reverse_hex_pairs(hex_str):
+    # Reverse the hexadecimal string by pairs of 2 characters
+    return ''.join([hex_str[i:i+2] for i in range(0, len(hex_str), 2)][::-1])
