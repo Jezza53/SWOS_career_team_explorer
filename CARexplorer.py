@@ -27,6 +27,7 @@ fcolor_headers = '#979A9A'
 pythonpath = os.path.dirname(__file__)+'/'
 configfile = pythonpath + 'CARexplorer.conf'
 pickedfile = ''
+squadfull = []
 
 class openfiledialog():
     def __init__(self, initialdir, title, filetype):
@@ -40,11 +41,13 @@ class openfiledialog():
 
 def opencar():
     global pickedfile
+    global squadfull
     clear_frame(mf_leftframe)    
     choosecarfile = openfiledialog(default_opendir,'Select SWOS career file',[('SWOS Career file', '*.CAR')])
     pickedfile = choosecarfile.show()
     carfile_output = readcarfile(pickedfile)  # Call func to read squad details
     updateview(carfile_output)   # Call func to view data
+    squadfull = carfile_output[2]
 
 def clear_frame(framename):
     for widgets in framename.winfo_children():
@@ -187,6 +190,7 @@ def upd_data_players():     # This feature is planned for future releases
 
 def change_balance():      # This feature is planned for future releases
     global pickedfile
+    global squadfull
     if pickedfile != '':
         user_input = simpledialog.askstring("Input", "Enter a new Bank Balance Amount:")
         

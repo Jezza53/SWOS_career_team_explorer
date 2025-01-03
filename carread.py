@@ -30,7 +30,7 @@ class player():
         self.skills = None
         self.val = None
 
-class PlayerHex:
+class PlayerHex():
     def __init__(self, address: str, stringvalue: str) -> None:
         self.address = address
         self.stringvalue = stringvalue
@@ -68,6 +68,69 @@ class PlayerHex:
 
         return result
 
+class PlayerFull:
+    def __init__(self, phex: PlayerHex):
+        self.phex: PlayerHex = phex
+        splitstringvalue = phex.split()
+
+        try:
+            self.nation = d_AGEdit_nation[hex2int(splitstringvalue[0])]
+        except KeyError:
+            self.nation = "UKWN"
+
+        self.unknown1 = splitstringvalue[1]
+        self.number = hex2int(hexpurgezeros(splitstringvalue[2]))
+        self.name = hex2ascii(hexcutzeros(splitstringvalue[3]))
+        self.unknown2 = splitstringvalue[4]
+
+        facepos_val_log = hex2int(splitstringvalue[5])
+        facepos_val_mod_log = fixposition(facepos_val_log)
+        self.position = d_posfaceval[facepos_val_mod_log[1]][0]
+        self.face = d_posfaceval[facepos_val_mod_log[1]][1]
+
+        self.cardsinjuries = splitstringvalue[6]
+        self.P = hex2int(splitstringvalue[7][1])
+        self.V = hex2int(splitstringvalue[7][2])
+        self.H = hex2int(splitstringvalue[7][3])
+        self.T = hex2int(splitstringvalue[7][4])
+        self.C = hex2int(splitstringvalue[7][5])
+        self.S = hex2int(splitstringvalue[7][6])
+        self.F = hex2int(splitstringvalue[7][7])
+
+        self.valueindex = hex2int(splitstringvalue[8])
+
+        self.skills = sum(map(int, [
+            convert815skills(self.P, True), 
+            convert815skills(self.V, True), 
+            convert815skills(self.H, True), 
+            convert815skills(self.T, True), 
+            convert815skills(self.C, True), 
+            convert815skills(self.S, True), 
+            convert815skills(self.F, True)
+        ]))
+
+        try:
+            self.stars = d_stars_values[splitstringvalue[8]]
+        except KeyError:
+            self.stars = 0
+
+        try:
+            self.value = d_values[splitstringvalue[8]]
+        except KeyError:
+            self.value = "N/A"
+
+        self.lggoals = hex2int(splitstringvalue[9])
+        self.cupgoals = hex2int(splitstringvalue[11])
+        self.unknown3 = splitstringvalue[10]
+        self.unknown4 = splitstringvalue[12]
+        self.unknown5 = splitstringvalue[13]
+
+    def __repr__(self) -> str:
+        return (f"{self.phex.address},HEX,{','.join(self.phex.split())},VALUES,"
+                f"{self.unknown1},{self.unknown2},{self.unknown3},{self.unknown4},{self.unknown5},{self.nation},{self.number},{self.cardsinjuries},{self.face},"
+                f"{self.P},{self.V},{self.H},{self.T},{self.C},{self.S},{self.F},{self.skills},{self.valueindex},{self.stars},"
+                f"{self.value},{self.lggoals},{self.cupgoals},{self.position},{self.name}")
+    
 # Force path to CAR file to be given by the user
 #parser = argparse.ArgumentParser(description='SWOS career team explorer')
 #parser.add_argument('carrer_save_file', metavar='car_file', help='Path to SWOS *.CAR file')
@@ -93,7 +156,7 @@ def readcarfile(inputfile):
 
     footballer = 0  # Number of squad players read from file    
     squad = [('head','number','name','pos','nat','P', 'V', 'H', 'T', 'C', 'S' ,'F', 'value')] # Declare a list for future data feed
-    squadhex = []
+    squadfull = []
     if inputfile != '':
         open_infile = open(inputfile, 'r+b').read()                         # Open file in read/binary mode only 
         #inputfile = open(args.carrer_save_file, 'r+b').read()              # Open file in read/binary mode only
@@ -181,7 +244,7 @@ def readcarfile(inputfile):
                     squad.append(temptuple)
 
                     #for logging later
-                    squadhex.append(PlayerHex(call, hexpure(hexread(open_infile, call, 38))))
+                    squadfull.append(PlayerFull(PlayerHex(call, hexpure(hexread(open_infile, call, 38)))))
 
                 else:
                     pass
@@ -202,60 +265,12 @@ def readcarfile(inputfile):
         counter = 0
         print('address,HEX:,,,,,,,,,,,,,,,VALUES:,U1,U2,U3,U4,U5,Nation,Number,Name,CardsInjuries,Position,Face,P,V,H,T,C,S,F,ValueIndex,Stars,Value,League Goals, Cup Goals')
 
-        while counter < len(squadhex):
-            splitstringvalue = squadhex[counter].split()
-
-            try:
-                nation = d_AGEdit_nation[hex2int(splitstringvalue[0])]
-            except KeyError:
-                nation = "Unknown"
-
-            unknown1 = splitstringvalue[1]
-            number = hex2int(hexpurgezeros(splitstringvalue[2]))
-            name = hex2ascii(hexcutzeros(splitstringvalue[3]))
-            unknown2 = splitstringvalue[4]
-
-            facepos_val_log = hex2int(splitstringvalue[5])
-            facepos_val_mod_log = fixposition(facepos_val_log)
-            position = d_posfaceval[facepos_val_mod_log[1]][0]
-            face = d_posfaceval[facepos_val_mod_log[1]][1]
-
-            cardsinjuries = splitstringvalue[6]
-            P = hex2int(splitstringvalue[7][1])
-            V = hex2int(splitstringvalue[7][2])
-            H = hex2int(splitstringvalue[7][3])
-            T = hex2int(splitstringvalue[7][4])
-            C = hex2int(splitstringvalue[7][5])
-            S = hex2int(splitstringvalue[7][6])
-            F = hex2int(splitstringvalue[7][7])
-            skills = sum(map(int, [convert815skills(P, True), convert815skills(V, True), convert815skills(H, True), convert815skills(T, True), convert815skills(C, True), convert815skills(S, True), convert815skills(F, True)]))
-
-            valueindex = hex2int(splitstringvalue[8])
-
-            try:
-                stars = d_stars_values[splitstringvalue[8]]
-            except KeyError:
-                stars = "Unknown"
-
-            try:
-                value = d_values[splitstringvalue[8]]
-            except KeyError:
-                value = "Unknown"
-
-            lggoals = hex2int(splitstringvalue[9])
-            cupgoals = hex2int(splitstringvalue[11])
-            unknown3 = splitstringvalue[10]
-            unknown4 = splitstringvalue[12]
-            unknown5 = splitstringvalue[13]
-
-            print(f"{squadhex[counter].address},HEX,{','.join(splitstringvalue)},VALUES,"
-                f"{unknown1},{unknown2},{unknown3},{unknown4},{unknown5},{nation},{number},{name},{cardsinjuries},{position},{face},"
-                f"{P},{V},{H},{T},{C},{S},{F},{skills},{valueindex},{stars},"
-                f"{value},{lggoals},{cupgoals}")
+        while counter < len(squadfull):
+            
+            print(repr(squadfull[counter]))
 
             counter += 1
 
-
-        return squad, teaminfo
+        return squad, teaminfo, squadfull
         # Closing statement
         #print('Extract from CAR file completed.' + '\n' + 'Output file saved under: ' + args.output_file + '\n')
