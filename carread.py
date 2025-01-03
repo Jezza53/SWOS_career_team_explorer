@@ -137,7 +137,7 @@ def readcarfile(inputfile):
                         d_posfaceval[facepos_val_mod[1]][2],
                         hex2int(hexpurgezeros(hexpure(hexread(open_infile, call+2, 1)))),
                         hex2ascii(hexcutzeros(hexpure(hexread(open_infile, call+3, 23)))),
-                        d_AGEdit_nation[hex2int(hexpurgezeros(hexpure(hexread(open_infile, call, 1))))],
+                        d_AGEdit_nation[hex2int(hexpure(hexread(open_infile, call, 1)))],
                         d_posfaceval[facepos_val_mod[1]][0],
                         matrix,  
                         hexpure(hexread(open_infile, call+32, 1)),
@@ -153,7 +153,7 @@ def readcarfile(inputfile):
                         d_posfaceval[facepos_val_mod[1]][2],
                         hex2int(hexpurgezeros(hexpure(hexread(open_infile, call+2, 1)))),
                         hex2ascii(hexcutzeros(hexpure(hexread(open_infile, call+3, 23)))),
-                        d_AGEdit_nation[hex2int(hexpurgezeros(hexpure(hexread(open_infile, call, 1))))],
+                        d_AGEdit_nation[hex2int(hexpure(hexread(open_infile, call, 1)))],
                         d_posfaceval[facepos_val_mod[1]][0],
                         matrix,  
                         hexpure(hexread(open_infile, call+32, 1)),
@@ -206,7 +206,7 @@ def readcarfile(inputfile):
             splitstringvalue = squadhex[counter].split()
 
             try:
-                nation = d_AGEdit_nation[hex2int(hexpurgezeros(splitstringvalue[0]))]
+                nation = d_AGEdit_nation[hex2int(splitstringvalue[0])]
             except KeyError:
                 nation = "Unknown"
 
