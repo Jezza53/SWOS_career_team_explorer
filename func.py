@@ -96,11 +96,10 @@ def sanitize_string(input_string):
     return sanitized_string
 
 def fix_22_length(s):
-    # Trim the string to 22 characters or pad with '0' to make it 22 characters long
-    if len(s) > 22:
-        return s[:22]
-    else:
-        return s.ljust(22, '0')
+    # Trim the string to 44 characters or pad with '0' to make it 44 characters long (22 bytes)
+    if len(s) > 44:
+        return s[:44]
+    return s.ljust(44, '0')
 
 def string_to_hex(s):
     # Convert each character in the string to its hex value and join them
