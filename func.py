@@ -1,3 +1,5 @@
+import re
+
 def hexread(file, starting_offset, hex):
     # Read HEX values from SWOS CAR file
     tmpdata = file[starting_offset:starting_offset+hex]
@@ -60,3 +62,49 @@ def convert815skills(skill, convert):
         return skill - 8
     else:
         return skill
+
+def update_hex_data(hex_data, offset, new_hex_value):
+    # Convert the hex data to a mutable bytearray
+    hex_data_array = bytearray(hex_data)
+    
+    # Update the hex value at the specified offset
+    # Assuming new_hex_value is a byte or bytes object
+    hex_data_array[offset:offset+len(new_hex_value)] = new_hex_value
+    
+    return bytes(hex_data_array)
+
+def reverse_hex_pairs(hex_str):
+    # Reverse the hexadecimal string by pairs of 2 characters
+    return ''.join([hex_str[i:i+2] for i in range(0, len(hex_str), 2)][::-1])
+
+def read_hex_file(file_path):
+    # Open the file in binary read mode
+    with open(file_path, 'rb') as file:
+        hex_data = file.read()
+    return hex_data
+
+def write_hex_file(file_path, hex_data):
+    # Open the file in binary write mode
+    with open(file_path, 'wb') as file:
+        file.write(hex_data)
+
+def sanitize_string(input_string):
+    # Use a regular expression to remove all non-letter and non-space characters
+    sanitized_string = re.sub(r'[^a-zA-Z\s]', '', input_string)
+    # Strip leading and trailing spaces
+    sanitized_string = sanitized_string.strip()
+    return sanitized_string
+
+def fix_22_length(s):
+    # Trim the string to 44 characters or pad with '0' to make it 44 characters long (22 bytes)
+    if len(s) > 44:
+        return s[:44]
+    return s.ljust(44, '0')
+
+def string_to_hex(s):
+    # Convert each character in the string to its hex value and join them
+    return ''.join(format(ord(c), '02x') for c in s)
+
+def replace_substring(original, new_substring, position):
+    # Replace substring at the specified position
+    return original[:position] + new_substring + original[position+len(new_substring):]

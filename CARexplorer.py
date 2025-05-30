@@ -3,8 +3,12 @@ import webbrowser
 import os
 from tkinter import *
 from PIL import ImageTk,Image
+from tkinter import ttk
 from tkinter import filedialog
+from tkinter import simpledialog
+from tkinter import messagebox
 from carread import *
+from carwrite import *
 from dict import *
 from get_data import *
 
@@ -24,6 +28,8 @@ color_re = '#ae131a'
 fcolor_headers = '#979A9A'
 pythonpath = os.path.dirname(__file__)+'/'
 configfile = pythonpath + 'CARexplorer.conf'
+pickedfile = ''
+squadfull = []
 
 class openfiledialog():
     def __init__(self, initialdir, title, filetype):
@@ -36,15 +42,27 @@ class openfiledialog():
         return x
 
 def opencar():
+    global pickedfile
+    global squadfull
     clear_frame(mf_leftframe)    
     choosecarfile = openfiledialog(default_opendir,'Select SWOS career file',[('SWOS Career file', '*.CAR')])
     pickedfile = choosecarfile.show()
     carfile_output = readcarfile(pickedfile)  # Call func to read squad details
     updateview(carfile_output)   # Call func to view data
+    squadfull = carfile_output[2]
 
 def clear_frame(framename):
     for widgets in framename.winfo_children():
         widgets.destroy()
+
+def updatemoneydisplay(balance):
+    moneycanvas = Canvas(mf_rightframe,width=280,borderwidth=0, highlightthickness=0,bg=colortone)
+    moneycanvas.place(x=10,y=130)
+
+    teamnamebox_5 = Label(moneycanvas,bg=colortone,width=15,height=1,bd=0,highlightthickness=0, font=('swos',14),anchor='w',text='BANK BALANCE:',fg='yellow')
+    teamnamebox_5.grid(row=0,column=0,columnspan=2)
+    teamnamebox_6 = Label(moneycanvas,bg=colortone,width=20,height=1,bd=0,highlightthickness=0, font=('swos',12),anchor='e',text="{:0,.2f}".format(float(balance)),fg='white')
+    teamnamebox_6.grid(row=1,column=1,columnspan=2,pady=5)
 
 def updateview(carfile_output):
     squad = carfile_output[0]
@@ -135,7 +153,7 @@ def updateview(carfile_output):
         s_label.grid(row=counter,column=10,sticky='n',pady=3)
         f_label.grid(row=counter,column=11,sticky='n',pady=3)
         star_label.grid(row=counter,column=12,sticky='n',pady=3)
-        counter += 1 
+        counter += 1
     
     # Show team info on the right side
     teamcanvas = Canvas(mf_rightframe,width=280,borderwidth=0, highlightthickness=0,bg=colortone)
@@ -157,10 +175,7 @@ def updateview(carfile_output):
     box_br2 = Label(teamcanvas,bg=colortone,width=10,height=1,bd=0,highlightthickness=0, font=('swos',12),text=' ',fg='white')
     box_br2.grid(row=5,column=0,columnspan=2)
 
-    teamnamebox_5 = Label(teamcanvas,bg=colortone,width=15,height=1,bd=0,highlightthickness=0, font=('swos',14),anchor='w',text='BANK BALANCE:',fg='yellow')
-    teamnamebox_5.grid(row=6,column=0,columnspan=2)
-    teamnamebox_6 = Label(teamcanvas,bg=colortone,width=20,height=1,bd=0,highlightthickness=0, font=('swos',12),anchor='e',text="{:0,.2f}".format(float(carfileteaminfo.money)),fg='white')
-    teamnamebox_6.grid(row=7,column=1,columnspan=2,pady=5)
+    updatemoneydisplay(carfileteaminfo.money)
 
 def close():
     quit()
@@ -172,11 +187,138 @@ def upd_data_teams():
     update_teamdata(swos_data_directory,data_directory)
     tk.messagebox.showinfo("Done",  'DATA has been updated. The file has been saved under xml directory.')
 
-def upd_data_players():     # This feature is planned for future releases
-    pass
+def show_attributes(selected_name):
+    def save_attributes():
+        # Save the updated attributes
+        selected_player.name = name_entry.get()
+        selected_player.P = int(p_combobox.get())
+        selected_player.V = int(v_combobox.get())
+        selected_player.H = int(h_combobox.get())
+        selected_player.T = int(t_combobox.get())
+        selected_player.C = int(c_combobox.get())
+        selected_player.S = int(s_combobox.get())
+        selected_player.F = int(f_combobox.get())
+        if bool(is_clean_var.get()) == True:
+                selected_player.cardsinjuries = '00'
 
-def change_bbalance():      # This feature is planned for future releases
-    pass
+        selected_player.UpdateInCAR(pickedfile)
+
+        attributes_popup.destroy()
+
+        carfile_output = readcarfile(pickedfile)  # Call func to read squad details
+        updateview(carfile_output)   # Call func to view data
+        squadfull = carfile_output[2]
+
+        messagebox.showinfo("Info", f"Attributes for {selected_player.name} updated successfully!")
+
+    # Close the first pop-up window
+    popup.destroy()
+
+    # Find the selected person
+    selected_player = next(curplayer for curplayer in squadfull if curplayer.name == selected_name)
+    
+    # Create another pop-up window to show and edit attributes
+    attributes_popup = tk.Toplevel(root)
+    attributes_popup.title("Edit Attributes")
+
+    # Editable fields
+    tk.Label(attributes_popup, text="Name:").grid(row=0, column=0, padx=10, pady=5)
+    name_entry = tk.Entry(attributes_popup)
+    name_entry.insert(0, selected_player.name)
+    name_entry.grid(row=0, column=1, padx=10, pady=5)
+
+    tk.Label(attributes_popup, text="P:").grid(row=1, column=0, padx=10, pady=5)
+    p_combobox = ttk.Combobox(attributes_popup, values=list(range(8)), width=3)
+    p_combobox.set(selected_player.P)
+    p_combobox.grid(row=1, column=1, padx=10, pady=5)
+
+    tk.Label(attributes_popup, text="V:").grid(row=2, column=0, padx=10, pady=5)
+    v_combobox = ttk.Combobox(attributes_popup, values=list(range(8)), width=3)
+    v_combobox.set(selected_player.V)
+    v_combobox.grid(row=2, column=1, padx=10, pady=5)
+
+    tk.Label(attributes_popup, text="H:").grid(row=3, column=0, padx=10, pady=5)
+    h_combobox = ttk.Combobox(attributes_popup, values=list(range(8)), width=3)
+    h_combobox.set(selected_player.H)
+    h_combobox.grid(row=3, column=1, padx=10, pady=5)
+
+    tk.Label(attributes_popup, text="T:").grid(row=4, column=0, padx=10, pady=5)
+    t_combobox = ttk.Combobox(attributes_popup, values=list(range(8)), width=3)
+    t_combobox.set(selected_player.T)
+    t_combobox.grid(row=4, column=1, padx=10, pady=5)
+
+    tk.Label(attributes_popup, text="C:").grid(row=5, column=0, padx=10, pady=5)
+    c_combobox = ttk.Combobox(attributes_popup, values=list(range(8)), width=3)
+    c_combobox.set(selected_player.C)
+    c_combobox.grid(row=5, column=1, padx=10, pady=5)
+
+    tk.Label(attributes_popup, text="S:").grid(row=6, column=0, padx=10, pady=5)
+    s_combobox = ttk.Combobox(attributes_popup, values=list(range(8)), width=3)
+    s_combobox.set(selected_player.S)
+    s_combobox.grid(row=6, column=1, padx=10, pady=5)
+
+    tk.Label(attributes_popup, text="F:").grid(row=7, column=0, padx=10, pady=5)
+    f_combobox = ttk.Combobox(attributes_popup, values=list(range(8)), width=3)
+    f_combobox.set(selected_player.F)
+    f_combobox.grid(row=7, column=1, padx=10, pady=5)
+
+    tk.Label(attributes_popup, text="Clear Red Cards and Injuries:").grid(row=8, column=0, padx=10, pady=5)
+    is_clean_var = tk.IntVar(value=1 if selected_player.cardsinjuries == 'ff' else 0)
+    is_clean_checkbox = tk.Checkbutton(attributes_popup, variable=is_clean_var)
+    is_clean_checkbox.grid(row=8, column=1, padx=10, pady=5)
+
+    # Non-editable fields
+    non_editable_attributes = ["value", "position", "nation"]
+    for i, attr in enumerate(non_editable_attributes, start=9):
+        tk.Label(attributes_popup, text=f"{attr.capitalize()}:").grid(row=i, column=0, padx=10, pady=5)
+        tk.Label(attributes_popup, text=getattr(selected_player, attr)).grid(row=i, column=1, padx=10, pady=5)
+
+    # OK button to save and close the attributes pop-up
+    tk.Button(attributes_popup, text="OK", command=save_attributes).grid(row=i+1, column=0, pady=10)
+    # Cancel button to close the attributes pop-up without saving
+    tk.Button(attributes_popup, text="Cancel", command=attributes_popup.destroy).grid(row=i+1, column=1, pady=10)
+
+
+def upd_data_players():     # This feature is planned for future releases
+    global popup
+    global pickedfile
+    global squadfull
+    popup = tk.Toplevel(root)
+    popup.title("Select Name")
+
+    # Dropdown list
+    selected_name = tk.StringVar()
+    dropdown = ttk.Combobox(popup, textvariable=selected_name, values=[curplayer.name for curplayer in squadfull])
+    dropdown.pack(pady=10)
+
+    # OK button
+    tk.Button(popup, text="OK", command=lambda: show_attributes(selected_name.get())).pack(side=tk.LEFT, padx=10)
+
+    # Cancel button
+    tk.Button(popup, text="Cancel", command=popup.destroy).pack(side=tk.RIGHT, padx=10)
+
+def change_balance():      # This feature is planned for future releases
+    global pickedfile
+    global squadfull
+    if pickedfile != '':
+        user_input = simpledialog.askstring("Input", "Enter a new Bank Balance Amount:")
+        
+        try:
+            newbalance = max(0, min(100000000, int(user_input))) #do not allow crazy values
+        except ValueError:
+            tk.messagebox.showinfo("Invalid", "Please enter a valid number.")
+            return
+
+        updateCARbalance(pickedfile, newbalance)
+
+        updatemoneydisplay(newbalance)
+
+        tk.messagebox.showinfo("Done", "Balance updated in CAR file")
+
+    else:
+        tk.messagebox.showinfo("No CAR", "Please load a .CAR file first.")
+
+
 
 def edit_player():          # This feature is planned for future releases
     pass
@@ -272,14 +414,17 @@ bg_label.place(x=0,y=0)
 #- - - - - - - - - - - - - - - - -
 mf_rightframe = Frame(root, height=850, width=300, bg=colortone, highlightthickness=0,bd=0) # Label with menu
 mf_rightframe.grid(row=1,column=1)
-Button(mf_rightframe, image=b4, borderwidth=0, highlightthickness=0, command=work_in_progress).place(y=400,x=30)
+Button(mf_rightframe, image=b4, borderwidth=0, highlightthickness=0, command=change_balance).place(y=400,x=30)
 Button(mf_rightframe, image=b7, borderwidth=0, highlightthickness=0, command=work_in_progress).place(y=450,x=30)
 Button(mf_rightframe, image=b3, borderwidth=0, highlightthickness=0, command=upd_data_teams).place(y=500,x=30)
-Button(mf_rightframe, image=b5, borderwidth=0, highlightthickness=0, command=work_in_progress).place(y=550,x=30)
+Button(mf_rightframe, image=b5, borderwidth=0, highlightthickness=0, command=upd_data_players).place(y=550,x=30)
 Button(mf_rightframe, image=b6, borderwidth=0, highlightthickness=0, command=work_in_progress).place(y=600,x=30)
-Button(mf_rightframe, image=b1, borderwidth=0, highlightthickness=0, command=close).place(y=800,x=30)
-Button(mf_rightframe, image=b2, borderwidth=0, highlightthickness=0, command=opencar).place(y=750,x=30)
-Button(mf_rightframe, image=info, borderwidth=0, highlightthickness=0, command=infobox).place(y=700,x=160)
-Button(mf_rightframe, image=git, borderwidth=0, highlightthickness=0, command=launchgitsite).place(y=700,x=30)
+Button(mf_rightframe, image=b1, borderwidth=0, highlightthickness=0, command=close).place(y=750,x=30)
+Button(mf_rightframe, image=b2, borderwidth=0, highlightthickness=0, command=opencar).place(y=700,x=30)
+Button(mf_rightframe, image=info, borderwidth=0, highlightthickness=0, command=infobox).place(y=650,x=160)
+Button(mf_rightframe, image=git, borderwidth=0, highlightthickness=0, command=launchgitsite).place(y=650,x=30)
+
+
+
 
 root.mainloop()
